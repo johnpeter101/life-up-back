@@ -1,6 +1,36 @@
 const connection = require('../../SQL_CONECTION');
 
+//---------------------------------------------------------------------delete- USER
+function deleteUser(req, res, ID) {
+  connection.query('DELETE FROM personal WHERE PersonalID = ?', [ID], (error, results) => {
+    if (error) {
+      // Manejar errores de consulta
+      console.error('Error al ejecutar la consulta:', error);
+      res.status(500).json({ error: 'Error al ejecutar la consulta' });
+    } else {
+      // Enviar los resultados de la consulta como respuesta
+      res.sendStatus(200);
+      console.log('borrado')
+    }
+  });
 
+}
+
+//---------------------------------------------------------------------buscar user id- USER
+function getInfoUser(req, res, ID) {
+  connection.query('SELECT * FROM personal WHERE PersonalID = ?', [ID], (error, results) => {
+    if (error) {
+      // Manejar errores de consulta
+      console.error('Error al ejecutar la consulta:', error);
+      res.status(500).json({ error: 'Error al ejecutar la consulta' });
+    } else {
+      // Enviar los resultados de la consulta como respuesta
+      res.json(results);
+ 
+    }
+  });
+
+}
 
 //---------------------------------------------------------------------INSERT- USER
 function insertUser(req, res, formData) {
@@ -9,7 +39,7 @@ function insertUser(req, res, formData) {
       console.error('Error al realizar el INSERT:', error);
       res.status(500).json({ error: 'Ocurrió un error al agregar el usuario' });
     } else {
-      console.log('Usuario agregado exitosamente');
+      //console.log('Usuario agregado exitosamente');
       res.status(200).json({ message: 'Usuario agregado exitosamente' });
     }
   });
@@ -21,14 +51,13 @@ function incrementUser(req, res, Data) {
       console.error('Error al realizar el INSERT:', error);
       res.status(500).json({ error: 'Ocurrió un error al agregar el usuario' });
     } else {
-      console.log('Usuario agregado exitosamente');
+      //console.log('Usuario agregado exitosamente');
       res.status(200).json({ message: 'Usuario incrementado exitosamente' });
     }
   });
 }
 //----------------------------------------------------------------------OBTENER lista centros
 function getListCentros(req, res) {
-
   connection.query('SELECT ID_Centro, Nombre FROM centros', (error, results) => {
     if (error) {
       console.error('Error al ejecutar la consulta:', error);
@@ -69,5 +98,7 @@ module.exports = {
   insertUser,
   getListCentros,
   getNumeroDeUsuarios,
-  incrementUser
+  incrementUser,
+  getInfoUser,
+  deleteUser
 };

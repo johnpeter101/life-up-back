@@ -15,6 +15,8 @@ const { insertUser } = require('./database_Conections/SuperUsuarios/DashboardSU'
 const { getListCentros } = require('./database_Conections/SuperUsuarios/DashboardSU');
 const { getNumeroDeUsuarios } = require('./database_Conections/SuperUsuarios/DashboardSU');
 const { incrementUser } = require('./database_Conections/SuperUsuarios/DashboardSU');
+const { getInfoUser } = require('./database_Conections/SuperUsuarios/DashboardSU');
+const { deleteUser } = require('./database_Conections/SuperUsuarios/DashboardSU');
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////----------------> SUPER USUARIOS
 //------------------------------------------------------------- Ruta de inicio de sesión de super usuarios
@@ -51,7 +53,18 @@ app.post('/api/IncrementUSerNum', async (req, res) => {
   const Data = req.body;
   incrementUser(req, res, Data);
 });
-
+//------------------------------------------------------------- obtiene la informacion del personal en base a su id
+app.post('/api/UserSearch', async (req, res) => {
+  //Método para autenticar el super usuario
+  const ID = req.body.ID;
+  getInfoUser(req, res, ID);
+});
+//------------------------------------------------------------- obtiene la informacion del personal en base a su id
+app.post('/api/DeleteUser', async (req, res) => {
+  //Método para autenticar el super usuario
+  const ID = req.body.ID;
+  deleteUser(req, res, ID);
+});
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////----------------> LOGIN PERSONAL
 
 
