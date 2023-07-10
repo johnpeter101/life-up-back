@@ -2,13 +2,19 @@ const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql');
 const app = express();
-
+var bodyParser = require('body-parser');
 // Configuración de CORS
 app.use(cors());
 // Middleware para analizar el cuerpo de la solicitud como JSON
 app.use(express.json());
 
+// Middleware para analizar el cuerpo de las solicitudes
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
+
 //require functions
+//super usuarios
 const { AuthSU } = require('./database_Conections/SuperUsuarios/LoginSU_sql');
 const { getTable } = require('./database_Conections/SuperUsuarios/DashboardSU');
 const { insertUser } = require('./database_Conections/SuperUsuarios/DashboardSU');
@@ -17,6 +23,9 @@ const { getNumeroDeUsuarios } = require('./database_Conections/SuperUsuarios/Das
 const { incrementUser } = require('./database_Conections/SuperUsuarios/DashboardSU');
 const { getInfoUser } = require('./database_Conections/SuperUsuarios/DashboardSU');
 const { deleteUser } = require('./database_Conections/SuperUsuarios/DashboardSU');
+//login normal
+const { AuthNormal } = require('./database_Conections/login');
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////----------------> SUPER USUARIOS
 //------------------------------------------------------------- Ruta de inicio de sesión de super usuarios
@@ -66,23 +75,41 @@ app.post('/api/DeleteUser', async (req, res) => {
   deleteUser(req, res, ID);
 });
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////----------------> LOGIN PERSONAL
-
-
-
-
-
-
-
-
-
-//-------------------------------------------------funcion de prueva para visualizar contenido
-
-app.get('/datos/:username', (req, res) => {
-  const username = req.params.username;
-  AuthSU(req, res, username);
+app.post('/api/loginNormal', (req, res) => {
+  //Obtener el body
+  
+  const { email, password } = req.body;
+  //Método para autenticar el super usuario
+  AuthNormal(req, res, email);
 });
 
-app.get('/api/tabla', getTable);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
