@@ -25,6 +25,8 @@ const { getInfoUser } = require('./database_Conections/SuperUsuarios/DashboardSU
 const { deleteUser } = require('./database_Conections/SuperUsuarios/DashboardSU');
 //login normal
 const { AuthNormal } = require('./database_Conections/login');
+//inser user
+const { GetCentroID } = require('./database_Conections/Users/insertUser');
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////----------------> SUPER USUARIOS
@@ -74,17 +76,26 @@ app.post('/api/DeleteUser', async (req, res) => {
   const ID = req.body.ID;
   deleteUser(req, res, ID);
 });
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////----------------> LOGIN PERSONAL
 app.post('/api/loginNormal', (req, res) => {
   //Obtener el body
   
   const { email, password } = req.body;
+
   //Método para autenticar el super usuario
   AuthNormal(req, res, email);
 });
 
-
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////----------------> INSERT USER
+//------------------------------------------------------------- obtiene el numero de usuario ultimo
+app.post('/api/GetCentroID', async (req, res) => {
+  //Método OBTENER EL CENTRO
+  const { ID_Personal } = req.body;
+  //console.log("personal: "+ID_Personal);
+  GetCentroID(req, res, ID_Personal);
+});
 
 
 

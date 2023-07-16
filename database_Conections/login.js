@@ -16,11 +16,12 @@ function AuthNormal(req, res, username) {
                 const usr = results[0].Email;
                 const pass = results[0].Password;
                 const rol = results[0].Rol;
+                const ID = results[0].PersonalID;
                 //console.log("datos: "+usr+"  :  "+pass);
                 if (email === usr && password === pass) {
-                    res.json({ role: rol });
+                    res.json({ role: rol, ID: ID});
                 } else {
-                    res.status(401).json({ message: 'Credenciales inválidas' });
+                    res.status(401).json({ message: 'Credenciales inválidas' });               
                 }
             } else {
                 res.sendStatus(401); // No autorizado
