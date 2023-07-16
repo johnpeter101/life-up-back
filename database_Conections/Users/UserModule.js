@@ -1,7 +1,7 @@
 
 const connection = require('../../SQL_CONECTION');
 
-//-----------------------------------------------------------loggin super usuario
+//-----------------------------------------------------------obtener el id del personal que esta agregando 
 function GetCentroID(req, res, ID_personal) {
     const { ID_PERSONAL } = req.body;
     connection.query('SELECT * FROM personal WHERE PersonalID = ?', [ID_personal], (error, results) => {
@@ -22,7 +22,22 @@ function GetCentroID(req, res, ID_personal) {
     });
 }
 
+//---------------------------------------------------------------------INSERT- USER
+function InsertNewUserInfoPersonal(req, res, formData) {
+
+    connection.query('INSERT INTO usuarios SET ?', formData, (error, results) => {
+
+      if (error) {
+        console.error('Error al realizar el INSERT:', error);
+        res.status(500).json({ error: 'Ocurrió un error al agregar el usuario' });
+      } else {
+        //console.log('Usuario agregado exitosamente');
+        res.status(200).json({ message: 'Usuario agregado exitosamente' });
+      }
+    });
+  }
 
 module.exports = {
-    GetCentroID
+    GetCentroID, 
+    InsertNewUserInfoPersonal
 };

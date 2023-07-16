@@ -25,8 +25,12 @@ const { getInfoUser } = require('./database_Conections/SuperUsuarios/DashboardSU
 const { deleteUser } = require('./database_Conections/SuperUsuarios/DashboardSU');
 //login normal
 const { AuthNormal } = require('./database_Conections/login');
-//inser user
-const { GetCentroID } = require('./database_Conections/Users/insertUser');
+
+//INSERTAR USUARIOS AL CENTRRO
+const { 
+  GetCentroID, 
+  InsertNewUserInfoPersonal 
+} = require('./database_Conections/Users/UserModule');
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////----------------> SUPER USUARIOS
@@ -95,6 +99,14 @@ app.post('/api/GetCentroID', async (req, res) => {
   const { ID_Personal } = req.body;
   //console.log("personal: "+ID_Personal);
   GetCentroID(req, res, ID_Personal);
+});
+
+//------------------------------------------------------------- Ruta de insertar usuarios info personal
+app.post('/api/addInformationPersonalUser', async (req, res) => {
+  //Método para autenticar el super usuario
+  const formData = req.body;
+
+  InsertNewUserInfoPersonal(req, res, formData);
 });
 
 
