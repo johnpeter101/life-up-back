@@ -3,6 +3,7 @@ const cors = require('cors');
 const mysql = require('mysql');
 const app = express();
 var bodyParser = require('body-parser');
+const multer = require('multer'); // Middleware para manejar archivos en formularios
 // Configuración de CORS
 app.use(cors());
 // Middleware para analizar el cuerpo de la solicitud como JSON
@@ -11,6 +12,23 @@ app.use(express.json());
 // Middleware para analizar el cuerpo de las solicitudes
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
+app.use(express.static('public'));
+
+const destinoFoto="uploads";
+// Configuración de multer para guardar la imagen en el servidor
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './'+destinoFoto); // Carpeta donde se guardarán las imágenes, asegúrate de crearla
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '_' + file.originalname); // Nombre de archivo único
+  }
+});
+
+const upload = multer({ storage });
+
+
 
 
 //require functions
@@ -29,10 +47,15 @@ const { AuthNormal } = require('./database_Conections/login');
 //INSERTAR USUARIOS AL CENTRRO
 const { 
   GetCentroID, 
-  InsertNewUserInfoPersonal 
+  InsertNewUserInfoPersonal,
+  InsertNewUserInfoContact,
+  InsertNewUserInfoEmergencia,
+  InsertNewUserPhoto,
+  obtenerResumenUserNew,
+  getTableUser
 } = require('./database_Conections/Users/UserModule');
 
-
+const {obtenerTest} = require('./database_Conections/test');
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////----------------> SUPER USUARIOS
 //------------------------------------------------------------- Ruta de inicio de sesión de super usuarios
 app.post('/api/login', async (req, res) => {
@@ -109,6 +132,72 @@ app.post('/api/addInformationPersonalUser', async (req, res) => {
   InsertNewUserInfoPersonal(req, res, formData);
 });
 
+//------------------------------------------------------------- Ruta de insertar usuarios info personal contacto, tabla direcciones
+app.post('/api/addInformationContactUser', async (req, res) => {
+  //Método para autenticar el super usuario
+  const formData = req.body;
+  InsertNewUserInfoContact(req, res, formData);
+});
+
+//------------------------------------------------------------- Ruta de insertar usuarios info personal emergencia
+app.post('/api/addInformationEmergencyUser', async (req, res) => {
+  //Método para autenticar el super usuario
+  const formData = req.body;
+
+  InsertNewUserInfoEmergencia(req, res, formData);
+});
+
+
+//------------------------------------------------------------- Ruta de insertar usuarios info personal emergencia
+app.post('/api/addUserPhoto', upload.single('userPhoto'), (req, res) => {
+  
+  console.log('si entro')
+  try {
+    const userId = req.body.userId;
+    //console.log('ID de usuario:', userId);
+    ///console.log('Nombre del archivo:', req.file.filename);
+    const ruta="./"+destinoFoto+'/'+req.file.filename;
+   // console.log('destino: ' , ruta);
+    //res.status(200).json({ message: 'Imagen subida correctamente.' });
+
+    const UserID=userId;
+    const FotoURL=	ruta;
+    const formData= {
+      UserID,
+      FotoURL	
+    }
+
+    InsertNewUserPhoto(req, res, formData);
+  } catch (error) {
+    console.error('Error al subir la imagen:', error);
+    res.status(500).json({ error: 'Error al subir la imagen.' });
+  }
+});
+ // 
+
+
+ app.post('/api/obtenerInfoNuevoUser', async (req, res) => {
+  //Método para autenticar el super usuario
+  //getListCentros(req, res);
+
+  obtenerResumenUserNew(req, res);
+  //console.log("hola ")
+});
+
+
+
+//------------------------------------------------------------- Ruta de obtener tabla de usuarios 
+app.get('/api/tableUsers', async (req, res) => {
+  //Método para autenticar el super usuario
+  getTableUser(req, res);
+});
+
+
+
+app.get('/getImageUser', (req, res) => {
+  const imagePath = path.join(__dirname, 'public', 'uploads', 'foto.png');
+  res.sendFile(imagePath);
+});
 
 
 
@@ -125,6 +214,19 @@ app.post('/api/addInformationPersonalUser', async (req, res) => {
 
 
 
+
+
+
+
+
+
+
+//endpoint test
+app.post('/test', (req, res, ) => {
+  const { dato } = req.body;
+  //llamar a la funcion de busqueda
+  obtenerTest(req, res, dato);
+});
 
 
 
