@@ -174,7 +174,7 @@ function obtenerResumenUserNew(req, res) {
 
                           URL = results[0].FotoURL;
 
-                         
+
                           //res.sendFile(imagePath);
 
                           //console.log("centro: "+ id);
@@ -244,10 +244,151 @@ function getTableUser(req, res) {
 }
 
 
+function getUserInfoWidget(req, res, ID) {
+  let nombre, sexo, familiar, edad, telefono, direccion, foto, fecha;
+
+  //consultar tabla de usuarios
+  connection.query('SELECT * FROM usuarios WHERE UserID = ?', [ID], (error, results) => {
+    if (error) {
+      console.error('Error al ejecutar la consulta:', error);
+      res.status(500).send('Error en el servidor');
+    } else {
+
+      if (results && results.length > 0) {
+        nombre = results[0].Nombre + " " + results[0].ApellidoPaterno + " " + results[0].ApellidoMaterno;
+        sexo = results[0].Sexo;
+        edad = results[0].Edad + " años";
+        telefono = results[0].Telefono;
+        fecha = results[0].Fecha;
+
+        //consultar tabla de direccion
+        connection.query('SELECT * FROM direcciones WHERE UserID = ?', [ID], (error, results) => {
+          if (error) {
+            console.error('Error al ejecutar la consulta:', error);
+            res.status(500).send('Error en el servidor');
+          } else {
+            if (results && results.length > 0) {
+              direccion = results[0].Calle + ", " + results[0].Colonia + ", " + results[0].CodigoPostal;
+
+              //consultar tabla de direccion
+              connection.query('SELECT * FROM contactoemergencia WHERE UserID = ?', [ID], (error, results) => {
+                if (error) {
+                  console.error('Error al ejecutar la consulta:', error);
+                  res.status(500).send('Error en el servidor');
+                } else {
+
+                  if (results && results.length > 0) {
+                    familiar = results[0].Nombre + " " + results[0].ApellidoPaterno + " " + results[0].ApellidoMaterno;
+
+                    //foto
+                    res.json({
+                      Nombre: nombre,
+                      Direccion: direccion,
+                      Sexo: sexo,
+                      Familiar: familiar,
+                      Edad: edad,
+                      Telefono: telefono,
+                      Fecha: fecha
+                    });
+
+                  } else {
+                    res.json({ Valor: "No hay coincidencia" });
+                  }
+                }
+              });
+
+            } else {
+              res.json({ Valor: "No hay coincidencia" });
+            }
+          }
+        });
+
+      } else {
+        res.json({ Valor: "No hay coincidencia" });
+      }
+    }
+  });
+}
+
+//buscar user y eliminarlo
+function getUser(req, res, ID) {
+  connection.query('SELECT * FROM usuarios WHERE UserID = ?', [ID], (error, results) => {
+    if (error) {
+      // Manejar errores de consulta
+      console.error('Error al ejecutar la consulta:', error);
+      res.status(500).json({ error: 'Error al ejecutar la consulta' });
+    } else {
+      // Enviar los resultados de la consulta como respuesta
+      res.json(results);
+
+    }
+  });
+
+}
+function DeleteUserInfo(req, res, ID) {
+  connection.query('DELETE FROM usuarios WHERE UserID = ?', [ID], (error, results) => {
+    if (error) {
+      // Manejar errores de consulta
+      console.error('Error al ejecutar la consulta:', error);
+      res.status(500).json({ error: 'Error al ejecutar la consulta' });
+    } else {
+      // Enviar los resultados de la consulta como respuesta
+      connection.query('DELETE FROM direcciones WHERE UserID = ?', [ID], (error, results) => {
+        if (error) {
+          // Manejar errores de consulta
+          console.error('Error al ejecutar la consulta:', error);
+          res.status(500).json({ error: 'Error al ejecutar la consulta' });
+        } else {
+          // Enviar los resultados de la consulta como respuesta
+          connection.query('DELETE FROM contactoemergencia WHERE UserID = ?', [ID], (error, results) => {
+            if (error) {
+              // Manejar errores de consulta
+              console.error('Error al ejecutar la consulta:', error);
+              res.status(500).json({ error: 'Error al ejecutar la consulta' });
+            } else {
+              // Enviar los resultados de la consulta como respuesta
+              connection.query('DELETE FROM fotouser WHERE UserID = ?', [ID], (error, results) => {
+                if (error) {
+                  // Manejar errores de consulta
+                  console.error('Error al ejecutar la consulta:', error);
+                  res.status(500).json({ error: 'Error al ejecutar la consulta' });
+                } else {
+                  // Enviar los resultados de la consulta como respuesta
+                  res.sendStatus(200);
+                  console.log('borrado')
+                }
+              });
+              console.log('borrado')
+            }
+          });
+          console.log('borrado')
+        }
+      });
+      console.log('borrado')
+    }
+  });
+
+}
 
 
 
 
+
+
+async function getPhotoURL(ID) {
+  return new Promise((resolve, reject) => {
+    // obtener numero de masculinos
+    connection.query('SELECT * FROM fotouser WHERE UserID = ?', [ID], (error, results) => {
+      if (error) {
+        console.error('Error al ejecutar la consulta:', error);
+        reject(error);
+      } else {
+        const URL = results[0].FotoURL;
+        resolve(URL);
+      }
+    });
+  });
+}
 
 module.exports = {
   GetCentroID,
@@ -256,7 +397,11 @@ module.exports = {
   InsertNewUserInfoEmergencia,
   InsertNewUserPhoto,
   obtenerResumenUserNew,
-  getTableUser
+  getTableUser,
+  getUserInfoWidget,
+  getUser,
+  DeleteUserInfo,
+  getPhotoURL
 };
 
 
