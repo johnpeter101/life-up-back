@@ -84,7 +84,8 @@ const {
 // MODULO DE WIDGETS
 const {
   getSexos,
-  getFechasEndPoint
+  getFechasEndPoint,
+  getFechasPsicologia
 } = require('./database_Conections/Widgets/widgets-functions');
 
 
@@ -142,8 +143,11 @@ app.post('/api/DeleteUser', async (req, res) => {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////----------------> END POINT´S LOGIN PERSONAL
 app.post('/api/loginNormal', (req, res) => {
+  
   //Obtener el body
   const { email, password } = req.body;
+  console.log('user: '+ email);
+  console.log('pass: '+password);
   //Método para autenticar el super usuario
   AuthNormal(req, res, email);
 });
@@ -330,7 +334,12 @@ app.get('/api/widgets-Get-Fechas', async (req, res) => {
   getFechasEndPoint(req, res);
 });
 
+//fechas de atencion
+app.get('/api/widgets-Get-Psicologia', async (req, res) => {
+  //Método para autenticar el super usuario
 
+  getFechasPsicologia(req, res);
+});
 
 //endpoint test
 app.post('/test', (req, res,) => {

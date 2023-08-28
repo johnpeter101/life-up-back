@@ -91,6 +91,35 @@ async function getMasculino() {
     });
 }
 
+async function getFechasSQLFilterPsicologia() {
+  return new Promise((resolve, reject) => {
+
+      const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+      const DataGraficaFecha = [['Mes', 'Usuarios']];
+
+      const promesas = meses.map((mes, indice) => {
+          return new Promise((resolverConsulta, rechazarConsulta) => {
+              connection.query(`SELECT Fecha FROM psicologia WHERE MONTH(STR_TO_DATE(Fecha, "%d/%m/%Y")) = ${indice + 1}`, (error, resultados) => {
+                  if (error) {
+                      console.error(`Error al ejecutar la consulta para el mes ${mes}:`, error);
+                      rechazarConsulta(error);
+                  } else {
+                      DataGraficaFecha.push([mes, resultados.length]);
+                      resolverConsulta();
+                  }
+              });
+          });
+      });
+
+      Promise.all(promesas)
+          .then(() => {
+              resolve(DataGraficaFecha);
+          })
+          .catch((error) => {
+              reject(error);
+          });
+  });
+}
   
 async function getFechasEndPoint(req, res) {
     try {
@@ -105,7 +134,20 @@ async function getFechasEndPoint(req, res) {
     }
   }
   
+  async function getFechasPsicologia(req, res) {
+    try {
+      
+      const datos = await getFechasSQLFilterPsicologia();
+  
+      res.json(datos);
+      // clasificar en porcentaje
+    } catch (error) {
+      console.error('Error al obtener la cantidad de masculinos:', error);
+      res.status(500).send('Error en el servidor');
+    }
+  }
 module.exports = {
     getSexos,
-    getFechasEndPoint
+    getFechasEndPoint,
+    getFechasPsicologia
 } 
