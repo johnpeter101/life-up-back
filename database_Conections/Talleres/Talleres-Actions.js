@@ -87,11 +87,39 @@ function DeleteTaller(req, res, ID) {
 
 }
 
+function getListTalleres(req, res) {
+    connection.query('SELECT TallerID, Nombre, Hora FROM talleres', (error, results) => {
+      if (error) {
+        console.error('Error al ejecutar la consulta:', error);
+        res.status(500).send('Error en el servidor');
+      } else {
+        console.log("Enviando: "+ results.length);
+        
+        res.json(results);
+      }
+    });
+  }
 
+  
+  function InsertAssitance(req, res, formData) {
+    connection.query('INSERT INTO asistencia SET ?', formData, (error, results) => {
+        console.log("entro");
+        if (error) {
+            console.error('Error al realizar el INSERT:', error);
+            res.status(500).json({ error: 'Ocurrió un error al agregar el usuario' });
+        } else {
+            //console.log('Usuario agregado exitosamente');
+            res.status(200).json({ message: ' agregado exitosamente' });
+            //agregar el usuario
+        }
+    });
+}
 module.exports = {
     getTableTalleres,
     getIdTalleresUltimo,
     InsertNewTaller,
     DeleteTaller,
-    VerificarIDTaller
+    VerificarIDTaller,
+    getListTalleres,
+    InsertAssitance
 } 

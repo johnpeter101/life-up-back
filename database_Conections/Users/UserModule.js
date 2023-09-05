@@ -320,11 +320,36 @@ function getUser(req, res, ID) {
     } else {
       // Enviar los resultados de la consulta como respuesta
       res.json(results);
+      
 
     }
   });
 
 }
+
+
+function getUserLUmobile(req, res, ID) {
+  connection.query('SELECT * FROM usuarios WHERE UserID = ?', [ID], (error, results) => {
+   
+    if (error) {
+      console.error('Error al buscar al usuario:', error);
+      res.status(500).json({ mensaje: 'Error en el servidor' });
+      return;
+    }
+
+    if (results.length > 0) {
+      // El usuario existe, responde con los datos del usuario
+      res.status(200).json({ usuario: results[0] });
+    } else {
+      // El usuario no existe, responde con un código 404 y un mensaje
+      res.status(404).json({ mensaje: 'El usuario no existe' });
+    }
+    
+  });
+
+}
+
+
 function DeleteUserInfo(req, res, ID) {
   connection.query('DELETE FROM usuarios WHERE UserID = ?', [ID], (error, results) => {
     if (error) {
@@ -401,7 +426,8 @@ module.exports = {
   getUserInfoWidget,
   getUser,
   DeleteUserInfo,
-  getPhotoURL
+  getPhotoURL,
+  getUserLUmobile
 };
 
 

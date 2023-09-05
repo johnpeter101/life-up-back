@@ -55,7 +55,8 @@ const {
   getTableUser,
   getUserInfoWidget,
   getUser, DeleteUserInfo,
-  getPhotoURL
+  getPhotoURL,
+  getUserLUmobile
 } = require('./database_Conections/Users/UserModule');
 
 //MODULO DE PSICOLOGÍA
@@ -78,7 +79,9 @@ const {
   getIdTalleresUltimo,
   InsertNewTaller,
   DeleteTaller,
-  VerificarIDTaller
+  VerificarIDTaller,
+  getListTalleres,
+  InsertAssitance
 } = require('./database_Conections/Talleres/Talleres-Actions');
 
 // MODULO DE WIDGETS
@@ -348,10 +351,30 @@ app.post('/test', (req, res,) => {
   obtenerTest(req, res, dato);
 });
 
+//////////////////////////////////////////////////life up mobile
+//endpoint buscar user
+app.get('/api/app-verify', (req, res) => {
+  const ID = req.query.username;
+  //llamar a la funcion de busqueda
+  getUserLUmobile(req, res, ID);
+});
+
+app.get('/api/GetTalleres', async (req, res) => {
+  //Método para autenticar el super usuario
+  getListTalleres(req, res);
+});
+
+app.post('/api/New-Assistance-Taller', async (req, res) => {
+  //Método para autenticar el super usuario
+  const formData = req.body;
+  InsertAssitance(req, res, formData);
+});
+
+const host = '0.0.0.0'; // Escucha en todas las interfaces
 
 
 //_----------------------------------------------------------------------------
 // Iniciar el servidor
-app.listen(3000, () => {
+app.listen(3000, host, () => {
   console.log('Servidor Express en funcionamiento en el puerto 3000');
 });
