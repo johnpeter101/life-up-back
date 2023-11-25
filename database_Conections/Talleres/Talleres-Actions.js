@@ -6,6 +6,7 @@ function getTableTalleres(req, res) {
             console.error('Error al ejecutar la consulta:', error);
             res.status(500).send('Error en el servidor');
         } else {
+            console.log(results);
             res.json(results);
         }
     });
@@ -63,9 +64,25 @@ function VerificarIDTaller(req, res, ID) {
           console.log('No encontrado');
           return res.sendStatus(404); // Envia solo el código de estado 404
         }
-      });
-      
+      });  
+}
+function updateTaller(req, res, idTaller, newData) {
+    console.log("Actualizado");
 
+    // Verifica si newData.Dias existe y es un array
+    if (newData.Dias && Array.isArray(newData.Dias)) {
+        // Convierte el array de días a una cadena separada por comas
+        newData.Dias = newData.Dias.join(', ');
+    }
+
+    connection.query('UPDATE talleres SET ? WHERE TallerID = ?', [newData, idTaller], (error, results) => {
+        if (error) {
+            console.error('Error al actualizar el taller:', error);
+            res.status(500).json({ error: 'Ocurrió un error al actualizar el taller' });
+        } else {
+            res.status(200).json({ message: 'Taller actualizado correctamente' });
+        }
+    });
 }
 
 function DeleteTaller(req, res, ID) {
@@ -121,5 +138,6 @@ module.exports = {
     DeleteTaller,
     VerificarIDTaller,
     getListTalleres,
-    InsertAssitance
+    InsertAssitance,
+    updateTaller
 } 

@@ -39,7 +39,7 @@ const { getListCentros } = require('./database_Conections/SuperUsuarios/Dashboar
 const { getNumeroDeUsuarios } = require('./database_Conections/SuperUsuarios/DashboardSU');
 const { incrementUser } = require('./database_Conections/SuperUsuarios/DashboardSU');
 const { getInfoUser } = require('./database_Conections/SuperUsuarios/DashboardSU');
-const { deleteUser } = require('./database_Conections/SuperUsuarios/DashboardSU');
+const { deleteUserPersonal } = require('./database_Conections/SuperUsuarios/DashboardSU');
 
 //LOGIN NORMAL
 const { AuthNormal } = require('./database_Conections/login');
@@ -56,18 +56,24 @@ const {
   getUserInfoWidget,
   getUser, DeleteUserInfo,
   getPhotoURL,
-  getUserLUmobile
+  getUserLUmobile,
+  updateUsuarios,
+  VerificarIDUsuario
 } = require('./database_Conections/Users/UserModule');
 
 //MODULO DE PSICOLOGÍA
 const {
-  InsertNewConsultPsicologia
+  InsertNewConsultPsicologia,
+  GetAllConsultasPsicologia
 } = require('./database_Conections/Psicologia/psicologia-actions');
 
 //MODULO DE SALUD
 const {
   InsertNewExpedienteSalud,
-  InsertNewConsultaSalud
+  InsertNewConsultaSalud,
+  GetAllExpedientes,
+  GetAllConsultas,
+  CheckExpedienteExistente
 } = require('./database_Conections/Salud/salud-actions');
 
 //MODULO DE TEST
@@ -81,7 +87,8 @@ const {
   DeleteTaller,
   VerificarIDTaller,
   getListTalleres,
-  InsertAssitance
+  InsertAssitance,
+  updateTaller
 } = require('./database_Conections/Talleres/Talleres-Actions');
 
 // MODULO DE WIDGETS
@@ -140,9 +147,14 @@ app.post('/api/UserSearch', async (req, res) => {
 app.post('/api/DeleteUser', async (req, res) => {
   //Método para autenticar el super usuario
   const ID = req.body.ID;
-  deleteUser(req, res, ID);
+  DeleteUserInfo(req, res, ID);
 });
 
+app.post('/api/DeleteUserPersonal', async (req, res) => {
+    //Método para autenticar el super usuario
+    const ID = req.body.ID;
+    deleteUserPersonal(req, res, ID);
+});
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////----------------> END POINT´S LOGIN PERSONAL
 app.post('/api/loginNormal', (req, res) => {
@@ -226,17 +238,25 @@ app.get('/getImageUser', (req, res) => {
   res.sendFile(imagePath);
 });
 
-//------------------------------------------------------------- borrar user
-app.post('/api/DeleteUserInfoComplete', async (req, res) => {
-  //Método para autenticar el super usuario
-  const ID = req.body.ID;
-  DeleteUserInfo(req, res, ID);
-});
 
 app.post('/api/getWidgetInfo', (req, res) => {
   const { ID } = req.body;
   getUserInfoWidget(req, res, ID);
 });
+app.post('/api/VerificarUsuarioID', async (req, res) => {
+    //Método para autenticar el super usuario
+    const ID = req.body.ID;
+    console.log(ID);
+    VerificarIDUsuario(req, res, ID);
+});
+app.put('/api/UsuariosUpdate/:id', async (req, res) => {
+    console.log("actualizar");
+    const ID = req.params.id;
+    const newData = req.body.newData;
+    console.log(ID, newData);
+    updateUsuarios(req, res, ID, newData);
+});
+
 
 // delete usaer
 app.post('/api/UserInfoSearch', async (req, res) => {
@@ -244,6 +264,12 @@ app.post('/api/UserInfoSearch', async (req, res) => {
   const ID = req.body.ID;
   getUser(req, res, ID);
 });
+app.post('/api/UserInfoUsuario', async (req, res) => {
+    //Método para autenticar el super usuario
+    const ID = req.body.ID;
+    getInfoUsuario(req, res, ID);
+});
+
 
 app.get('/api/ObtenerFoto', async (req, res) => {
   //Método para autenticar el super usuario
@@ -270,14 +296,28 @@ app.post('/api/Psicologia-Insert-NewConsult', async (req, res) => {
   const formData = req.body;
   InsertNewConsultPsicologia(req, res, formData);
 });
-
+app.get('/api/tableAllPsicologia', async (req, res) => {
+    GetAllConsultasPsicologia(req, res)
+});
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////----------------> END POINT´S MODULO SALUD
 //add expediente
 app.post('/api/Salud-Insert-NewExpedient', async (req, res) => {
   //Método para autenticar el super usuario
+    console.log("Expediente creado ");
   const formData = req.body;
   InsertNewExpedienteSalud(req, res, formData);
 });
+app.get('/api/tableAllExpedientes', async (req, res) => {
+    GetAllExpedientes(req, res)
+});
+app.get('/api/tableAllConsultas', async (req, res) => {
+    GetAllConsultas(req, res)
+});
+app.post('/api/CheckExpediente', async (req, res) => {
+    const ID = req.body.ID;
+    CheckExpedienteExistente(req, res, ID);
+});
+
 //add consulta
 app.post('/api/Salud-Insert-NewConsult', async (req, res) => {
   //Método para autenticar el super usuario
@@ -297,7 +337,8 @@ app.get('/api/tableTalleres', async (req, res) => {
 //getID
 app.get('/api/getIDTalleres', async (req, res) => {
   //Método para autenticar el super usuario
-  getIdTalleresUltimo(req, res);
+    getIdTalleresUltimo(req, res);
+
 });
 
 //insert
@@ -319,7 +360,15 @@ app.post('/api/VerificarTallerID', async (req, res) => {
   //Método para autenticar el super usuario
   const ID = req.body.ID;
   console.log(ID);
-  VerificarIDTaller(req, res, ID);
+    VerificarIDTaller(req, res, ID);
+//update taller
+});
+app.put('/api/TallerUpdate/:id', async (req, res) => {
+    console.log("acatualizar")
+    const idTaller = req.params.id;
+    const newData = req.body.newData;
+    console.log(idTaller, newData);
+    updateTaller(req, res, idTaller, newData);
 });
 
 
@@ -375,6 +424,6 @@ const host = '0.0.0.0'; // Escucha en todas las interfaces
 
 //_----------------------------------------------------------------------------
 // Iniciar el servidor
-app.listen(3000, host, () => {
-  console.log('Servidor Express en funcionamiento en el puerto 3000');
+app.listen(4000, host, () => {
+  console.log('Servidor Express en funcionamiento en el puerto 4000');
 });

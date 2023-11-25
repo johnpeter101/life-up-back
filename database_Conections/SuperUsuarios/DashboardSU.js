@@ -1,7 +1,7 @@
 const connection = require('../../SQL_CONECTION');
 
 //---------------------------------------------------------------------delete- USER
-function deleteUser(req, res, ID) {
+function deleteUserPersonal(req, res, ID) {
   connection.query('DELETE FROM personal WHERE PersonalID = ?', [ID], (error, results) => {
     if (error) {
       // Manejar errores de consulta
@@ -10,7 +10,7 @@ function deleteUser(req, res, ID) {
     } else {
       // Enviar los resultados de la consulta como respuesta
       res.sendStatus(200);
-      console.log('borrado')
+      console.log('Personal borrado')
     }
   });
 
@@ -100,5 +100,5 @@ module.exports = {
   getNumeroDeUsuarios,
   incrementUser,
   getInfoUser,
-  deleteUser
+  deleteUserPersonal
 };

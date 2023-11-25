@@ -2,6 +2,21 @@
 const connection = require('../../SQL_CONECTION');
 const multer = require('multer'); // Middleware para manejar archivos en formularios
 
+function getInfoUsuario(req, res, ID) {
+    connection.query('SELECT * FROM usuarios WHERE PersonalID = ?', [ID], (error, results) => {
+        if (error) {
+            // Manejar errores de consulta
+            console.error('Error al ejecutar la consulta:', error);
+
+            res.status(500).json({ error: 'Error al ejecutar la consulta' });
+        } else {
+            // Enviar los resultados de la consulta como respuesta
+            res.json(results);
+
+        }
+    });
+
+}
 //-----------------------------------------------------------obtener el id del personal que esta agregando 
 function GetCentroID(req, res, ID_personal) {
   const { ID_PERSONAL } = req.body;
@@ -22,7 +37,24 @@ function GetCentroID(req, res, ID_personal) {
     }
   });
 }
+//---------------------------------------------------------------------UPDATE- USER usuario
+function updateUser(req, res, formData) {
+    const { PersonalID, Nombre, ApellidoPaterno, ApellidoMaterno, Direccion, Sexo, Fecha, Familiar, Edad, Telefono } = formData;
 
+    connection.query(
+        'UPDATE usuarios SET Nombre = ?, ApellidoPaterno = ?, ApellidoMaterno = ?, Direccion = ?, Sexo = ?, Fecha = ?, Familiar = ?, Edad = ?, Telefono = ? WHERE PersonalID = ?',
+        [Nombre, ApellidoPaterno, ApellidoMaterno, Direccion, Sexo, Fecha, Familiar, Edad, Telefono, PersonalID],
+        (error, results) => {
+            if (error) {
+                console.error('Error al ejecutar la consulta de actualización:', error);
+                res.status(500).json({ error: 'Error al ejecutar la consulta de actualización' });
+            } else {
+                // Actualización exitosa
+                res.status(200).json({ message: 'Usuario actualizado exitosamente' });
+            }
+        }
+    );
+}
 //---------------------------------------------------------------------INSERT- USER personal
 function InsertNewUserInfoPersonal(req, res, formData) {
 
@@ -35,7 +67,8 @@ function InsertNewUserInfoPersonal(req, res, formData) {
       //console.log('Usuario agregado exitosamente');
       res.status(200).json({ message: 'Usuario agregado exitosamente' });
     }
-  });
+ 
+});
 }
 
 
@@ -52,6 +85,17 @@ function InsertNewUserInfoContact(req, res, formData) {
       res.status(200).json({ message: 'Usuario agregado exitosamente' });
     }
   });
+}
+function updateUsuarios(req, res, UserID, newData) {
+    console.log("Usuario Actualizado");
+    connection.query('UPDATE usuarios SET ? WHERE UserID = ?', [newData, UserID], (error, results) => {
+        if (error) {
+            console.error('Error al actualizar el usuario:', error);
+            res.status(500).json({ error: 'Ocurrió un error al actualizar el usuario' });
+        } else {
+            res.status(200).json({ message: 'Usuario actualizado correctamente' });
+        }
+    });
 }
 
 function InsertNewUserInfoEmergencia(req, res, formData) {
@@ -351,54 +395,19 @@ function getUserLUmobile(req, res, ID) {
 
 
 function DeleteUserInfo(req, res, ID) {
-  connection.query('DELETE FROM usuarios WHERE UserID = ?', [ID], (error, results) => {
-    if (error) {
-      // Manejar errores de consulta
-      console.error('Error al ejecutar la consulta:', error);
-      res.status(500).json({ error: 'Error al ejecutar la consulta' });
-    } else {
-      // Enviar los resultados de la consulta como respuesta
-      connection.query('DELETE FROM direcciones WHERE UserID = ?', [ID], (error, results) => {
+    connection.query('DELETE FROM usuarios WHERE UserID = ?', [ID], (error, results) => {
         if (error) {
-          // Manejar errores de consulta
-          console.error('Error al ejecutar la consulta:', error);
-          res.status(500).json({ error: 'Error al ejecutar la consulta' });
+            // Manejar errores de consulta
+            console.error('Error al ejecutar la consulta:', error);
+            res.status(500).json({ error: 'Error al ejecutar la consulta' });
+
         } else {
-          // Enviar los resultados de la consulta como respuesta
-          connection.query('DELETE FROM contactoemergencia WHERE UserID = ?', [ID], (error, results) => {
-            if (error) {
-              // Manejar errores de consulta
-              console.error('Error al ejecutar la consulta:', error);
-              res.status(500).json({ error: 'Error al ejecutar la consulta' });
-            } else {
-              // Enviar los resultados de la consulta como respuesta
-              connection.query('DELETE FROM fotouser WHERE UserID = ?', [ID], (error, results) => {
-                if (error) {
-                  // Manejar errores de consulta
-                  console.error('Error al ejecutar la consulta:', error);
-                  res.status(500).json({ error: 'Error al ejecutar la consulta' });
-                } else {
-                  // Enviar los resultados de la consulta como respuesta
-                  res.sendStatus(200);
-                  console.log('borrado')
-                }
-              });
-              console.log('borrado')
-            }
-          });
-          console.log('borrado')
+            // Enviar los resultados de la consulta como respuesta
+            res.sendStatus(200);
+            console.log('borrado')
         }
-      });
-      console.log('borrado')
-    }
-  });
-
+    });
 }
-
-
-
-
-
 
 async function getPhotoURL(ID) {
   return new Promise((resolve, reject) => {
@@ -414,6 +423,28 @@ async function getPhotoURL(ID) {
     });
   });
 }
+function VerificarIDUsuario(req, res, ID) {
+
+
+    connection.query('SELECT * FROM usuarios WHERE UserID = ?', [ID], (error, results) => {
+        if (error) {
+            // Handle database query error
+            console.error('Error al ejecutar la consulta:', error);
+            return res.sendStatus(500); // Envia solo el código de estado 500
+        }
+
+        if (results && results.length > 0) {
+            // Found matching results, return 200 OK
+            return res.sendStatus(200); // Envia solo el código de estado 200
+        } else {
+            // No matching results found, return 404 Not Found
+            console.log('No encontrado');
+            return res.sendStatus(404); // Envia solo el código de estado 404
+        }
+    });
+
+
+}
 
 module.exports = {
   GetCentroID,
@@ -427,7 +458,11 @@ module.exports = {
   getUser,
   DeleteUserInfo,
   getPhotoURL,
-  getUserLUmobile
+  updateUser,
+  getUserLUmobile,
+  getInfoUsuario,
+  updateUsuarios,
+  VerificarIDUsuario
 };
 
 
